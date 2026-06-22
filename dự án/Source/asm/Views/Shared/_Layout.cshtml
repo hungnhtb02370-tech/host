@@ -1,0 +1,733 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PCPartPicker Clone</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+                background: #1a1a2e;
+                color: #e0e0e0;
+                min-height: 100vh;
+            }
+
+            /* TOP BAR */
+            .topbar {
+                background: #0f0f1a;
+                border-bottom: 1px solid #2a2a3e;
+                padding: 5px 0;
+            }
+
+            .topbar-inner {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .topbar a {
+                color: #aaa;
+                text-decoration: none;
+                font-size: 13px;
+                transition: color 0.15s;
+            }
+
+                .topbar a:hover {
+                    color: #fff;
+                }
+
+            .topbar-sep {
+                color: #444;
+                font-size: 12px;
+            }
+
+            .topbar-country {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                color: #aaa;
+                font-size: 13px;
+                cursor: pointer;
+                padding: 3px 8px;
+                border-radius: 4px;
+                border: 1px solid #333;
+                background: transparent;
+                transition: border-color 0.15s;
+            }
+
+                .topbar-country:hover {
+                    border-color: #555;
+                    color: #ddd;
+                }
+
+            .theme-toggle {
+                width: 32px;
+                height: 18px;
+                background: #3a7bd5;
+                border-radius: 9px;
+                position: relative;
+                cursor: pointer;
+                border: none;
+                transition: background 0.2s;
+            }
+
+                .theme-toggle::after {
+                    content: '';
+                    position: absolute;
+                    width: 14px;
+                    height: 14px;
+                    background: white;
+                    border-radius: 50%;
+                    top: 2px;
+                    right: 2px;
+                    transition: transform 0.2s;
+                }
+
+            /* NAVBAR */
+            .navbar {
+                background: #1e1e30;
+                border-bottom: 1px solid #2e2e44;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            }
+
+            .navbar-inner {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: flex;
+                align-items: center;
+                height: 56px;
+                gap: 4px;
+            }
+
+            /* Logo */
+            .navbar-brand {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                text-decoration: none;
+                margin-right: 16px;
+                flex-shrink: 0;
+            }
+
+                .navbar-brand .logo-icon {
+                    width: 36px;
+                    height: 36px;
+                    background: linear-gradient(135deg, #3a7bd5, #5b8dee);
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 900;
+                    font-size: 16px;
+                    color: white;
+                    letter-spacing: -1px;
+                }
+
+                .navbar-brand .logo-text {
+                    font-size: 17px;
+                    font-weight: 700;
+                    color: #ffffff;
+                    letter-spacing: -0.3px;
+                }
+
+                    .navbar-brand .logo-text span {
+                        color: #5b8dee;
+                    }
+
+            /* Nav links */
+            .nav-links {
+                display: flex;
+                align-items: center;
+                list-style: none;
+                gap: 2px;
+                flex: 1;
+            }
+
+                .nav-links > li {
+                    position: relative;
+                }
+
+                    .nav-links > li > a,
+                    .nav-links > li > button {
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        padding: 8px 14px;
+                        color: #c8c8d8;
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-weight: 500;
+                        border-radius: 6px;
+                        background: transparent;
+                        border: none;
+                        cursor: pointer;
+                        white-space: nowrap;
+                        transition: background 0.15s, color 0.15s;
+                        height: 38px;
+                    }
+
+                        .nav-links > li > a:hover,
+                        .nav-links > li > button:hover {
+                            background: #2a2a44;
+                            color: #ffffff;
+                        }
+
+                    .nav-links > li.active > a {
+                        color: #5b8dee;
+                    }
+
+            .nav-icon {
+                width: 18px;
+                height: 18px;
+                opacity: 0.75;
+                flex-shrink: 0;
+            }
+
+            .dropdown-arrow {
+                font-size: 10px;
+                opacity: 0.6;
+                margin-left: 2px;
+                transition: transform 0.2s;
+            }
+
+            /* Dropdown */
+            .dropdown-menu {
+                display: none;
+                position: absolute;
+                top: calc(100% + 6px);
+                left: 0;
+                background: #252538;
+                border: 1px solid #35354f;
+                border-radius: 8px;
+                padding: 6px;
+                min-width: 200px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+
+            .nav-links > li:hover .dropdown-menu,
+            .nav-links > li:focus-within .dropdown-menu {
+                display: block;
+            }
+
+            .nav-links > li:hover .dropdown-arrow {
+                transform: rotate(180deg);
+            }
+
+            .dropdown-menu a {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 9px 12px;
+                color: #c8c8d8;
+                text-decoration: none;
+                font-size: 13.5px;
+                border-radius: 5px;
+                transition: background 0.12s, color 0.12s;
+            }
+
+                .dropdown-menu a:hover {
+                    background: #2e2e4a;
+                    color: #fff;
+                }
+
+            .dropdown-menu .menu-icon {
+                font-size: 15px;
+                width: 20px;
+                text-align: center;
+                opacity: 0.7;
+            }
+
+            .dropdown-divider {
+                height: 1px;
+                background: #35354f;
+                margin: 5px 6px;
+            }
+
+            .dropdown-category {
+                font-size: 11px;
+                font-weight: 600;
+                color: #666;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                padding: 8px 12px 4px;
+            }
+
+            /* Mega dropdown */
+            .dropdown-menu.mega {
+                min-width: 380px;
+                display: none;
+            }
+
+            .nav-links > li:hover .dropdown-menu.mega {
+                display: block;
+            }
+
+            .mega-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2px;
+            }
+
+            /* Search */
+            .navbar-search {
+                display: flex;
+                align-items: center;
+                margin-left: auto;
+            }
+
+            .search-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 38px;
+                height: 38px;
+                border-radius: 6px;
+                background: transparent;
+                border: none;
+                color: #aaa;
+                cursor: pointer;
+                transition: background 0.15s, color 0.15s;
+            }
+
+                .search-btn:hover {
+                    background: #2a2a44;
+                    color: #fff;
+                }
+
+                .search-btn svg {
+                    width: 18px;
+                    height: 18px;
+                }
+
+            .search-form {
+                display: none;
+                position: absolute;
+                top: 56px;
+                left: 0;
+                right: 0;
+                background: #1e1e30;
+                border-bottom: 1px solid #2e2e44;
+                padding: 12px 20px;
+                z-index: 998;
+            }
+
+                .search-form.open {
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                }
+
+                .search-form input {
+                    flex: 1;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: #252538;
+                    border: 1px solid #3a3a58;
+                    border-radius: 8px;
+                    padding: 10px 16px;
+                    color: #e0e0e0;
+                    font-size: 15px;
+                    outline: none;
+                    transition: border-color 0.15s;
+                    display: block;
+                    width: 100%;
+                }
+
+                    .search-form input:focus {
+                        border-color: #5b8dee;
+                    }
+
+                    .search-form input::placeholder {
+                        color: #666;
+                    }
+
+            .search-close {
+                background: none;
+                border: none;
+                color: #888;
+                font-size: 22px;
+                cursor: pointer;
+                line-height: 1;
+                padding: 0 4px;
+            }
+
+                .search-close:hover {
+                    color: #fff;
+                }
+
+            /* Hamburger */
+            .hamburger {
+                display: none;
+                flex-direction: column;
+                gap: 5px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 6px;
+                margin-left: 8px;
+            }
+
+                .hamburger span {
+                    display: block;
+                    width: 22px;
+                    height: 2px;
+                    background: #c8c8d8;
+                    border-radius: 2px;
+                    transition: all 0.25s;
+                }
+
+                .hamburger.open span:nth-child(1) {
+                    transform: translateY(7px) rotate(45deg);
+                }
+
+                .hamburger.open span:nth-child(2) {
+                    opacity: 0;
+                }
+
+                .hamburger.open span:nth-child(3) {
+                    transform: translateY(-7px) rotate(-45deg);
+                }
+
+            /* Mobile nav */
+            .mobile-nav {
+                display: none;
+                background: #1e1e30;
+                border-top: 1px solid #2e2e44;
+                padding: 12px 20px 20px;
+            }
+
+                .mobile-nav.open {
+                    display: block;
+                }
+
+                .mobile-nav a {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 12px 8px;
+                    color: #c8c8d8;
+                    text-decoration: none;
+                    font-size: 15px;
+                    border-bottom: 1px solid #2a2a40;
+                }
+
+                    .mobile-nav a:hover {
+                        color: #fff;
+                    }
+
+            .mobile-nav-section {
+                font-size: 11px;
+                font-weight: 600;
+                color: #555;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 14px 8px 6px;
+            }
+
+            @@media (max-width: 900px) {
+                .nav-links {
+                    display: none;
+                }
+
+                .hamburger {
+                    display: flex;
+                }
+
+                .navbar-search {
+                    display: none;
+                }
+            }
+
+            @@media (max-width: 600px) {
+                .topbar-inner {
+                    gap: 10px;
+                }
+
+                .logo-text {
+                    display: none;
+                }
+            }
+
+            .page-content {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 24px 20px;
+            }
+    </style>
+</head>
+<body>
+
+    @{
+        var activePage = ViewData["ActivePage"]?.ToString() ?? "";
+    }
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-inner">
+            <a asp-controller="Account" asp-action="Login">Log In</a>
+            <span class="topbar-sep">|</span>
+            <a asp-controller="Account" asp-action="Register">Register</a>
+            <span class="topbar-sep">|</span>
+            <button class="topbar-country" type="button">
+                <span>🇻🇳</span>
+                <span>Vietnam</span>
+                <span style="font-size:10px; opacity:0.6;">▾</span>
+            </button>
+            <button class="theme-toggle" id="themeToggle" type="button" title="Toggle theme" aria-label="Toggle dark/light mode"></button>
+        </div>
+    </div>
+
+    <!-- MAIN NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+
+            <!-- Logo -->
+            <a asp-controller="Home" asp-action="Index" class="navbar-brand">
+                <div class="logo-icon">PC</div>
+                <span class="logo-text">PC<span>PART</span>PICKER</span>
+            </a>
+
+            <!-- Nav Links -->
+            <ul class="nav-links">
+
+                <li class="@(activePage == "Builder" ? "active" : "")">
+                    <a asp-controller="Builder" asp-action="Index">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                        </svg>
+                        Builder
+                    </a>
+                </li>
+
+                <li>
+                    <button type="button">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="21 8 21 21 3 21 3 8" />
+                            <rect x="1" y="3" width="22" height="5" />
+                            <line x1="10" y1="12" x2="14" y2="12" />
+                        </svg>
+                        Products
+                        <span class="dropdown-arrow">▾</span>
+                    </button>
+                    <div class="dropdown-menu mega">
+                        <div class="dropdown-category">CPU &amp; Motherboard</div>
+                        <div class="mega-grid">
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="cpu">
+                                <span class="menu-icon">🖥️</span> CPU
+                            </a>
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="cpu-cooler">
+                                <span class="menu-icon">❄️</span> CPU Cooler
+                            </a>
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="motherboard">
+                                <span class="menu-icon">🔌</span> Motherboard
+                            </a>
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="memory">
+                                <span class="menu-icon">💾</span> Memory
+                            </a>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-category">Storage &amp; Display</div>
+                        <div class="mega-grid">
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="storage">
+                                <span class="menu-icon">💿</span> Storage
+                            </a>
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="gpu">
+                                <span class="menu-icon">🎮</span> Video Card
+                            </a>
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="monitor">
+                                <span class="menu-icon">🖥️</span> Monitor
+                            </a>
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="case">
+                                <span class="menu-icon">📦</span> Case
+                            </a>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="mega-grid">
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="psu">
+                                <span class="menu-icon">⚡</span> Power Supply
+                            </a>
+                            <a asp-controller="Products" asp-action="Index" asp-route-category="os">
+                                <span class="menu-icon">💻</span> OS
+                            </a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="@(activePage == "Guides" ? "active" : "")">
+                    <a asp-controller="Guides" asp-action="Index">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                            <polyline points="10 9 9 9 8 9" />
+                        </svg>
+                        Guides
+                    </a>
+                </li>
+
+                <li class="@(activePage == "Builds" ? "active" : "")">
+                    <a asp-controller="Builds" asp-action="Index">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                            <line x1="8" y1="21" x2="16" y2="21" />
+                            <line x1="12" y1="17" x2="12" y2="21" />
+                        </svg>
+                        Completed Builds
+                    </a>
+                </li>
+
+                <li class="@(activePage == "Trends" ? "active" : "")">
+                    <a asp-controller="Trends" asp-action="Index">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                            <polyline points="16 7 22 7 22 13" />
+                        </svg>
+                        Trends
+                    </a>
+                </li>
+
+                <li class="@(activePage == "Benchmarks" ? "active" : "")">
+                    <a asp-controller="Benchmarks" asp-action="Index">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        Benchmarks
+                    </a>
+                </li>
+
+                <li class="@(activePage == "Forums" ? "active" : "")">
+                    <a asp-controller="Forums" asp-action="Index">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Forums
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Search (desktop) -->
+            <div class="navbar-search">
+                <button class="search-btn" id="searchToggle" type="button" title="Tìm kiếm" aria-label="Mở tìm kiếm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Hamburger (mobile) -->
+            <button class="hamburger" id="hamburger" type="button" aria-label="Mở menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </div>
+
+        <!-- Search expand bar -->
+        <div class="search-form" id="searchForm" role="search">
+            <input type="text"
+                   id="searchInput"
+                   name="q"
+                   placeholder="Tìm kiếm linh kiện, build, hướng dẫn..." />
+            <button class="search-close" id="searchClose" type="button" aria-label="Đóng tìm kiếm">✕</button>
+        </div>
+
+        <!-- Mobile drawer -->
+        <div class="mobile-nav" id="mobileNav">
+            <div class="mobile-nav-section">Menu</div>
+            <a asp-controller="Builder" asp-action="Index">🔧 Builder</a>
+            <div class="mobile-nav-section">Products</div>
+            <a asp-controller="Products" asp-action="Index" asp-route-category="cpu">🖥️ CPU</a>
+            <a asp-controller="Products" asp-action="Index" asp-route-category="gpu">🎮 GPU</a>
+            <a asp-controller="Products" asp-action="Index" asp-route-category="motherboard">🔌 Motherboard</a>
+            <a asp-controller="Products" asp-action="Index" asp-route-category="memory">💾 Memory</a>
+            <a asp-controller="Products" asp-action="Index" asp-route-category="storage">💿 Storage</a>
+            <a asp-controller="Products" asp-action="Index" asp-route-category="psu">⚡ Power Supply</a>
+            <a asp-controller="Products" asp-action="Index" asp-route-category="case">📦 Case</a>
+            <div class="mobile-nav-section">Khác</div>
+            <a asp-controller="Guides" asp-action="Index">📄 Guides</a>
+            <a asp-controller="Builds" asp-action="Index">🖥️ Completed Builds</a>
+            <a asp-controller="Trends" asp-action="Index">📈 Trends</a>
+            <a asp-controller="Benchmarks" asp-action="Index">⏱️ Benchmarks</a>
+            <a asp-controller="Forums" asp-action="Index">💬 Forums</a>
+        </div>
+
+    </nav>
+
+    <!-- PAGE CONTENT -->
+    <main class="page-content">
+        @RenderBody()
+    </main>
+
+    <!-- SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Search toggle
+        const searchToggle = document.getElementById('searchToggle');
+        const searchForm   = document.getElementById('searchForm');
+        const searchClose  = document.getElementById('searchClose');
+        const searchInput  = document.getElementById('searchInput');
+
+        searchToggle.addEventListener('click', function () {
+        searchForm.classList.add('open');
+        searchInput.focus();
+        });
+        searchClose.addEventListener('click', function () {
+        searchForm.classList.remove('open');
+        });
+        document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') searchForm.classList.remove('open');
+        });
+
+        // Hamburger
+        const hamburger = document.getElementById('hamburger');
+        const mobileNav = document.getElementById('mobileNav');
+
+        hamburger.addEventListener('click', function () {
+        hamburger.classList.toggle('open');
+        mobileNav.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', hamburger.classList.contains('open').toString());
+        });
+        mobileNav.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+        hamburger.classList.remove('open');
+        mobileNav.classList.remove('open');
+        });
+        });
+
+        // Theme toggle
+        document.getElementById('themeToggle').addEventListener('click', function () {
+        document.body.classList.toggle('light-mode');
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
